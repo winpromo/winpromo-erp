@@ -555,24 +555,35 @@ function setSyncUI(status){
 
 function syncToFirebase(){
   setSyncUI('saving');
-  // Strip base64 dataUrls — store file metadata only to keep payload small
-  const payload = ordenes.map((o,i) => ({
-    ...o,
-    _i: undefined,
-    files: (o.files||[]).map(f=>({name:f.name, size:f.size, type:f.type}))
-  }));
+  // Guardamos como objeto indexado para evitar problemas con arrays en Firebase
+  const payload = {};
+  ordenes.forEach((o, i) => {
+    payload[i] = {
+      ...o,
+      _i: undefined,
+      files: (o.files||[]).map(f=>({name:f.name, size:f.size, type:f.type}))
+    };
+  });
   ordenesRef.set(payload)
     .then(()=>setSyncUI('ok'))
-    .catch(()=>setSyncUI('error'));
+    .catch((err)=>{ console.error('Sync error:', err); setSyncUI('error'); });
 }
 
 function loadFromFirebase(){
   setSyncUI('saving');
   ordenesRef.once('value')
     .then(snapshot => {
-      const data = snapshot.val();
-      if(data && Array.isArray(data) && data.length > 0){
-        // Preserve local file blobs (base64) that Firebase doesn't store
+      const raw = snapshot.val();
+      // Firebase puede devolver objeto o array — normalizamos
+      let data = null;
+      if(raw){
+        if(Array.isArray(raw)){
+          data = raw.filter(Boolean);
+        } else if(typeof raw === 'object'){
+          data = Object.values(raw).filter(Boolean);
+        }
+      }
+      if(data && data.length > 0){
         const local = JSON.parse(localStorage.getItem('wp_erp_v3')||'[]');
         ordenes = data.map(row => {
           const loc = local.find(l => l.num === row.num && l.cli === row.cli);
@@ -583,7 +594,8 @@ function loadFromFirebase(){
       setSyncUI('ok');
       renderDash(); renderTabla();
     })
-    .catch(()=>{
+    .catch((err)=>{
+      console.error('Firebase error:', err);
       setSyncUI('error');
       renderDash(); renderTabla();
     });

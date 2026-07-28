@@ -31,6 +31,13 @@ body{min-height:100vh;font-family:'Outfit',sans-serif;background:radial-gradient
 .stage-chip.paused{background:#fff0d5;color:#9c5d00;border-color:#f3ddb0}
 .dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.6s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.items-box{background:#f5f7fb;border:1px solid var(--border);border-radius:14px;padding:13px 15px;margin-top:4px}
+.items-box .t{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700;margin-bottom:8px}
+.items-box ul{list-style:none}
+.items-box li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed #e2e7f1;font-size:12.5px}
+.items-box li:last-child{border-bottom:0}
+.items-box li b{font-weight:600;color:#101b38}
+.items-box li span{color:var(--muted);white-space:nowrap;font-weight:600}
 .steps{margin:22px 0 4px;position:relative}
 .step{display:flex;gap:14px;position:relative;padding-bottom:24px}
 .step:last-child{padding-bottom:0}
@@ -77,6 +84,7 @@ body{min-height:100vh;font-family:'Outfit',sans-serif;background:radial-gradient
       <div class="order-client" id="tNumber" style="font-size:11.5px;font-weight:600;color:#8a94ab;margin-top:5px;letter-spacing:.3px"></div>
       <div class="stage-chip" id="tChip"><span class="dot"></span><span id="tStage">—</span></div>
     </div>
+    <div id="tItems" class="items-box hidden"></div>
     <div class="steps" id="tSteps"></div>
     <div class="delivery">
       <div class="delivery-icon" id="tDelIcon">🚚</div>
@@ -126,6 +134,16 @@ else{
     $('tClient').textContent = t.client || 'Su pedido';
     $('tProduct').textContent = (t.product||'') + (t.quantity ? ' · ' + Number(t.quantity).toLocaleString('es-SV') + ' piezas' : '');
     $('tNumber').textContent = t.number ? 'Orden N.º ' + t.number : '';
+    const items = Array.isArray(t.items) ? t.items : (t.items ? Object.values(t.items) : []);
+    if(items.length > 1){
+      $('tItems').innerHTML = '<div class="t">Productos de su pedido</div><ul>' + items.map(i=>
+        `<li><b>${(i.product||'').replace(/[<>&]/g,'')}${i.color?' · '+String(i.color).replace(/[<>&]/g,''):''}</b><span>${i.quantity?Number(i.quantity).toLocaleString('es-SV')+' pzs':''}</span></li>`
+      ).join('') + '</ul>';
+      $('tItems').classList.remove('hidden');
+      $('tProduct').textContent = items.length + ' productos · ' + (t.quantity?Number(t.quantity).toLocaleString('es-SV')+' piezas en total':'');
+    } else {
+      $('tItems').classList.add('hidden');
+    }
     $('tStage').textContent = t.stage || '';
     const chip=$('tChip');
     chip.classList.remove('done','paused');

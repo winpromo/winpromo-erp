@@ -61,6 +61,15 @@ a{color:inherit}
 .detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.detail-box{background:#f5f7fb;border-radius:10px;padding:10px}.detail-box small{display:block;font-size:8.8px;text-transform:uppercase;color:var(--muted);font-weight:700}.detail-box b{display:block;font-size:12px;margin-top:4px;word-break:break-word}.timeline{position:relative;margin-top:8px}.timeline:before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:1px;background:var(--border)}.timeline-item{position:relative;padding-left:25px;margin:11px 0}.timeline-item:before{content:'';position:absolute;left:3px;top:3px;width:9px;height:9px;border-radius:50%;background:var(--gold);border:2px solid #fff;box-shadow:0 0 0 1px var(--gold)}.timeline-item b{font-size:11px}.timeline-item p{font-size:10px;color:var(--muted);margin-top:2px}
 .toast-wrap{position:fixed;right:18px;bottom:18px;z-index:300;display:flex;flex-direction:column;gap:8px}.toast{min-width:270px;max-width:380px;background:#fff;border-radius:11px;padding:11px 13px;box-shadow:0 12px 38px rgba(8,18,41,.2);border-left:4px solid var(--green);font-size:11.5px;animation:toastIn .2s ease}.toast.error{border-left-color:var(--red)}.toast.warn{border-left-color:var(--orange)}@keyframes toastIn{from{transform:translateY(10px);opacity:0}}
 .login{position:fixed;inset:0;z-index:500;background:radial-gradient(circle at 30% 20%,#203d78,var(--navy) 55%,#061027);display:grid;place-items:center;padding:18px}.login-card{width:400px;max-width:100%;background:#fff;border-radius:20px;padding:38px;box-shadow:0 30px 90px rgba(0,0,0,.4);text-align:center}.login-logo{width:62px;height:62px;border-radius:16px;background:linear-gradient(135deg,var(--gold),var(--gold-2));display:grid;place-items:center;margin:0 auto 17px;color:var(--navy);font:800 21px 'Plus Jakarta Sans'}.login h1{font:800 21px 'Plus Jakarta Sans'}.login p{font-size:12px;color:var(--muted);margin:6px 0 23px}.google-btn{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;background:#fff;font-size:13px;font-weight:700;display:flex;justify-content:center;align-items:center;gap:10px}.google-btn:hover{border-color:var(--gold);background:#fffdf7}.login-note{font-size:10px!important;margin:16px 0 0!important}.login-error{display:none;background:#fee8e9;color:#9c222b;border-radius:9px;padding:10px;font-size:11px;margin-bottom:12px}.login-error.show{display:block}
+.items-wrap{display:flex;flex-direction:column;gap:7px}
+.item-row{display:grid;grid-template-columns:1.7fr .8fr .7fr .6fr .7fr .7fr 30px;gap:6px;align-items:center;background:#f8faff;border:1px solid var(--border);border-radius:10px;padding:8px}
+.item-row input{border:1px solid var(--border);border-radius:7px;padding:7px 8px;font-size:11.5px;width:100%;background:#fff;color:var(--text);outline:none}
+.item-row input:focus{border-color:var(--gold)}
+.item-row .it-del{border:0;background:#fee8e9;color:#a9232c;border-radius:7px;padding:6px;display:grid;place-items:center;height:30px}
+.items-head{display:grid;grid-template-columns:1.7fr .8fr .7fr .6fr .7fr .7fr 30px;gap:6px;padding:0 8px 2px;font-size:8.6px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:700}
+.items-total{margin-top:9px;background:var(--navy);color:#fff;border-radius:10px;padding:10px 13px;display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.items-total b{font:800 15px 'Plus Jakarta Sans';color:var(--gold-2)}
+@media(max-width:760px){.items-head{display:none}.item-row{grid-template-columns:1fr 1fr;gap:5px}.item-row .it-del{grid-column:1/-1;height:26px}}
 .confirm-copy{font-size:13px;line-height:1.55;color:#3c465f}.confirm-copy strong{color:var(--navy)}
 @media(max-width:1250px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.grid-2{grid-template-columns:1fr}.detail-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:900px){.sidebar{position:fixed;left:-290px}.sidebar.mobile-open{left:0}.sidebar.collapsed{width:var(--sidebar);min-width:var(--sidebar)}.sidebar.collapsed .brand-copy,.sidebar.collapsed .nav-copy,.sidebar.collapsed .sidebar-card-copy,.sidebar.collapsed .user-copy,.sidebar.collapsed .nav-section{display:block}.sidebar.collapsed .nav-btn{justify-content:flex-start;padding:10px 12px}.sidebar-toggle{display:none}.mobile-menu{display:grid}.topbar{padding:0 14px}.content{padding:16px 14px 30px}.top-actions .sync,.role-chip{display:none}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.finance-preview{grid-template-columns:repeat(2,1fr)}.cal-grid{min-width:760px}.panel.calendar-panel{overflow:auto}}
@@ -201,11 +210,14 @@ a{color:inherit}
             <div class="field"><label>Entrega estimada *</label><input id="fDeliveryDate" type="date" required /></div>
             <div class="field"><label>Estado</label><select id="fStatus"></select></div>
             <div class="field"><label>Prioridad</label><select id="fPriority"><option value="normal">Normal</option><option value="high">Alta</option><option value="urgent">Urgente</option></select></div>
-            <div class="field full"><label>Producto / descripción *</label><textarea id="fProduct" placeholder="Descripción completa del producto y personalización" required></textarea></div>
-            <div class="field"><label>SKU</label><input id="fSku" placeholder="Código del producto" /></div>
-            <div class="field"><label>Color</label><input id="fColor" placeholder="Color solicitado" /></div>
-            <div class="field"><label>Cantidad de piezas *</label><input id="fQuantity" type="number" min="1" required /></div>
-            <div class="field"><label>Subestado / detalle</label><input id="fSubstatus" placeholder="Ej. Esperando aprobación" /></div>
+            <div class="field full">
+              <label>Productos de la orden *</label>
+              <div class="items-head"><span>Producto / descripción</span><span>SKU</span><span>Color</span><span>Cant.</span><span data-cap="finance:view">P. unit. $</span><span data-cap="finance:view">C. unit. $</span><span></span></div>
+              <div id="itemsWrap" class="items-wrap"></div>
+              <button type="button" class="btn btn-light btn-sm" onclick="addItem()" style="margin-top:9px;align-self:flex-start"><i data-lucide="plus" class="icon"></i>Agregar producto</button>
+              <div class="items-total" data-cap="finance:view"><span id="itemsCountLbl">0 productos · 0 piezas</span><b id="itemsTotalLbl">$0.00</b></div>
+            </div>
+            <div class="field full"><label>Subestado / detalle</label><input id="fSubstatus" placeholder="Ej. Esperando aprobación" /></div>
             <div class="field full"><label>Notas generales</label><textarea id="fNotes" placeholder="Instrucciones, acuerdos y observaciones"></textarea></div>
           </div>
         </div>
@@ -239,8 +251,8 @@ a{color:inherit}
 
         <div id="tab-finance" class="tab-panel" data-cap="finance:view">
           <div class="form-grid">
-            <div class="field"><label>Precio de venta ($)</label><input id="fSalePrice" type="number" min="0" step="0.01" oninput="calculateFinancePreview()" /></div>
-            <div class="field"><label>Costo del producto ($)</label><input id="fProductCost" type="number" min="0" step="0.01" oninput="calculateFinancePreview()" /></div>
+            <div class="field"><label>Precio de venta ($) · suma de productos</label><input id="fSalePrice" type="number" step="0.01" readonly style="background:#f4f6fb;font-weight:700" /></div>
+            <div class="field"><label>Costo de productos ($) · suma de productos</label><input id="fProductCost" type="number" step="0.01" readonly style="background:#f4f6fb;font-weight:700" /></div>
             <div class="field"><label>Costo personalización ($)</label><input id="fPrintCost" type="number" min="0" step="0.01" oninput="calculateFinancePreview()" /></div>
             <div class="field"><label>Transporte ($)</label><input id="fShippingCost" type="number" min="0" step="0.01" oninput="calculateFinancePreview()" /></div>
             <div class="field"><label>Otros costos ($)</label><input id="fOtherCost" type="number" min="0" step="0.01" oninput="calculateFinancePreview()" /></div>
@@ -633,7 +645,7 @@ function filteredOrders(){
   const q=$('orderSearch').value.trim().toLowerCase(),status=$('orderStatus').value,exec=$('orderExecutive').value,due=$('orderDue').value,sort=$('orderSort').value;
   const today=todayISO(),week=new Date();week.setDate(week.getDate()+7);const weekISO=week.toISOString().slice(0,10);
   let list=activeOrders().filter(o=>{
-    const hay=`${o.number} ${o.client} ${o.product} ${o.sku||''} ${o.executive||''}`.toLowerCase();
+    const hay=`${o.number} ${o.client} ${o.product} ${o.sku||''} ${o.executive||''} ${orderItems(o).map(i=>i.product+' '+(i.sku||'')).join(' ')}`.toLowerCase();
     if(q&&!hay.includes(q))return false;if(status&&o.status!==status)return false;if(exec&&o.executive!==exec)return false;
     if(due==='overdue'&&dueClass(o)!=='overdue')return false;if(due==='today'&&o.deliveryDate!==today)return false;if(due==='week'&&(!o.deliveryDate||o.deliveryDate<today||o.deliveryDate>weekISO))return false;
     return true;
@@ -753,31 +765,108 @@ async function permanentlyDeleteOrder(id){if(state.role!=='admin')return;const o
 // MODAL DE ORDEN
 // =====================================================
 const FIELD_MAP = {
-  number:'fNumber',executive:'fExecutive',client:'fClient',contact:'fContact',phone:'fPhone',email:'fEmail',quoteNumber:'fQuote',customerPO:'fCustomerPO',approvalDate:'fApprovalDate',deliveryDate:'fDeliveryDate',status:'fStatus',priority:'fPriority',product:'fProduct',sku:'fSku',color:'fColor',quantity:'fQuantity',substatus:'fSubstatus',notes:'fNotes',technique:'fTechnique',printLocation:'fPrintLocation',logoSize:'fLogoSize',inkColors:'fInkColors',productionOwner:'fProductionOwner',machine:'fMachine',completedQty:'fCompletedQty',damagedQty:'fDamagedQty',damageReason:'fDamageReason',artReceivedDate:'fArtReceivedDate',artApprovedDate:'fArtApprovedDate',supplier:'fSupplier',supplierPO:'fSupplierPO',purchaseDate:'fPurchaseDate',arrivalDate:'fArrivalDate',receivedDate:'fReceivedDate',supplierNotes:'fSupplierNotes',salePrice:'fSalePrice',productCost:'fProductCost',printCost:'fPrintCost',shippingCost:'fShippingCost',otherCost:'fOtherCost',paidAmount:'fPaidAmount',paymentTerms:'fPaymentTerms',paymentDue:'fPaymentDue',deliveryAddress:'fDeliveryAddress',receiver:'fReceiver',receiverPhone:'fReceiverPhone',deliveryType:'fDeliveryType',driver:'fDriver',actualDeliveryDate:'fActualDeliveryDate',receivedBy:'fReceivedBy',deliveryNotes:'fDeliveryNotes'
+  number:'fNumber',executive:'fExecutive',client:'fClient',contact:'fContact',phone:'fPhone',email:'fEmail',quoteNumber:'fQuote',customerPO:'fCustomerPO',approvalDate:'fApprovalDate',deliveryDate:'fDeliveryDate',status:'fStatus',priority:'fPriority',substatus:'fSubstatus',notes:'fNotes',technique:'fTechnique',printLocation:'fPrintLocation',logoSize:'fLogoSize',inkColors:'fInkColors',productionOwner:'fProductionOwner',machine:'fMachine',completedQty:'fCompletedQty',damagedQty:'fDamagedQty',damageReason:'fDamageReason',artReceivedDate:'fArtReceivedDate',artApprovedDate:'fArtApprovedDate',supplier:'fSupplier',supplierPO:'fSupplierPO',purchaseDate:'fPurchaseDate',arrivalDate:'fArrivalDate',receivedDate:'fReceivedDate',supplierNotes:'fSupplierNotes',salePrice:'fSalePrice',productCost:'fProductCost',printCost:'fPrintCost',shippingCost:'fShippingCost',otherCost:'fOtherCost',paidAmount:'fPaidAmount',paymentTerms:'fPaymentTerms',paymentDue:'fPaymentDue',deliveryAddress:'fDeliveryAddress',receiver:'fReceiver',receiverPhone:'fReceiverPhone',deliveryType:'fDeliveryType',driver:'fDriver',actualDeliveryDate:'fActualDeliveryDate',receivedBy:'fReceivedBy',deliveryNotes:'fDeliveryNotes'
 };
+// ── ÍTEMS DE LA ORDEN ────────────────────────────────
+function itemRowHtml(it){
+  it=it||{};
+  return `<div class="item-row">
+    <input class="it-product" placeholder="Producto y personalización" value="${esc(it.product||'')}" oninput="recalcItems()" />
+    <input class="it-sku" placeholder="SKU" value="${esc(it.sku||'')}" />
+    <input class="it-color" placeholder="Color" value="${esc(it.color||'')}" />
+    <input class="it-qty" type="number" min="1" placeholder="0" value="${it.quantity!=null&&it.quantity!==''?num(it.quantity):''}" oninput="recalcItems()" />
+    <input class="it-price" data-cap="finance:view" type="number" min="0" step="0.01" placeholder="0.00" value="${it.unitPrice!=null&&it.unitPrice!==''?num(it.unitPrice):''}" oninput="recalcItems()" />
+    <input class="it-cost" data-cap="finance:view" type="number" min="0" step="0.01" placeholder="0.00" value="${it.unitCost!=null&&it.unitCost!==''?num(it.unitCost):''}" oninput="recalcItems()" />
+    <button type="button" class="it-del" onclick="removeItem(this)" title="Quitar producto"><i data-lucide="x" class="icon"></i></button>
+  </div>`;
+}
+function renderItems(items){
+  const wrap=$('itemsWrap');
+  const list=(items&&items.length)?items:[{}];
+  wrap.innerHTML=list.map(itemRowHtml).join('');
+  recalcItems();refreshIcons();applyPermissions();
+}
+function addItem(){
+  $('itemsWrap').insertAdjacentHTML('beforeend',itemRowHtml({}));
+  recalcItems();refreshIcons();applyPermissions();
+}
+function removeItem(btn){
+  const wrap=$('itemsWrap');
+  if(wrap.children.length<=1){toast('La orden debe tener al menos un producto','warn');return;}
+  btn.closest('.item-row').remove();recalcItems();
+}
+function readItems(){
+  return [...$('itemsWrap').querySelectorAll('.item-row')].map(r=>({
+    product:r.querySelector('.it-product').value.trim(),
+    sku:r.querySelector('.it-sku').value.trim(),
+    color:r.querySelector('.it-color').value.trim(),
+    quantity:num(r.querySelector('.it-qty').value),
+    unitPrice:num(r.querySelector('.it-price').value),
+    unitCost:num(r.querySelector('.it-cost').value)
+  })).filter(it=>it.product||it.quantity||it.unitPrice);
+}
+function itemsTotals(items){
+  return items.reduce((a,it)=>({
+    qty:a.qty+num(it.quantity),
+    sale:a.sale+num(it.quantity)*num(it.unitPrice),
+    cost:a.cost+num(it.quantity)*num(it.unitCost)
+  }),{qty:0,sale:0,cost:0});
+}
+function recalcItems(){
+  const items=readItems(),t=itemsTotals(items);
+  $('itemsCountLbl').textContent=`${items.length} producto${items.length===1?'':'s'} · ${integer(t.qty)} piezas`;
+  $('itemsTotalLbl').textContent=money(t.sale);
+  $('fSalePrice').value=t.sale?t.sale.toFixed(2):'';
+  $('fProductCost').value=t.cost?t.cost.toFixed(2):'';
+  calculateFinancePreview();
+}
+function itemsSummary(items){
+  const names=items.map(i=>i.product).filter(Boolean);
+  if(!names.length)return '';
+  return names.length<=2?names.join(' + '):`${names[0]} + ${names.length-1} producto${names.length-1===1?'':'s'} más`;
+}
+// Compatibilidad: órdenes antiguas de un solo producto
+function orderItems(o){
+  if(Array.isArray(o.items)&&o.items.length)return o.items;
+  if(Object.prototype.toString.call(o.items)==='[object Object]'){const arr=Object.values(o.items).filter(Boolean);if(arr.length)return arr;}
+  if(o.product||o.quantity)return [{product:o.product||'',sku:o.sku||'',color:o.color||'',quantity:num(o.quantity),unitPrice:num(o.quantity)?num(o.salePrice)/num(o.quantity):0,unitCost:num(o.quantity)?num(o.productCost)/num(o.quantity):0}];
+  return [];
+}
+
 function switchOrderTab(btn){
   $$('.tab').forEach(x=>x.classList.toggle('active',x===btn));$$('.tab-panel').forEach(x=>x.classList.toggle('active',x.id==='tab-'+btn.dataset.tab));
 }
 function clearOrderForm(){
   Object.values(FIELD_MAP).forEach(id=>{const el=$(id);if(el)el.value='';});
-  $('fStatus').value='approved';$('fPriority').value='normal';$('fPaymentTerms').value='contado';$('fApprovalDate').value=todayISO();state.pendingFiles=[];state.removedFiles=[];renderFileList();calculateFinancePreview();
+  $('fStatus').value='approved';$('fPriority').value='normal';$('fPaymentTerms').value='contado';$('fApprovalDate').value=todayISO();state.pendingFiles=[];state.removedFiles=[];renderFileList();renderItems([]);calculateFinancePreview();
 }
 function openOrderModal(id=null){
   if(id&&!can('orders:edit'))return;if(!id&&!can('orders:create'))return;state.editingOrderId=id;clearOrderForm();$('orderModalTitle').textContent=id?'Editar orden':'Nueva orden';
-  const order=id?orderById(id):null;if(order){Object.entries(FIELD_MAP).forEach(([key,fieldId])=>{if($(fieldId))$(fieldId).value=order[key]??'';});state.pendingFiles=(order.files||[]).map(f=>({...f,existing:true}));}
+  const order=id?orderById(id):null;if(order){Object.entries(FIELD_MAP).forEach(([key,fieldId])=>{if($(fieldId))$(fieldId).value=order[key]??'';});state.pendingFiles=(order.files||[]).map(f=>({...f,existing:true}));renderItems(orderItems(order));}
   else{$('fExecutive').value=state.executives.length?'':userLabel();$('fDeliveryDate').value='';}
   const firstTab=document.querySelector('.tab[data-tab="general"]');switchOrderTab(firstTab);renderFileList();calculateFinancePreview();openOverlay('orderOverlay');
 }
 function closeOrderModal(){closeOverlay('orderOverlay');state.editingOrderId=null;state.pendingFiles=[];state.removedFiles=[];}
 function collectOrderForm(){
   const data={};Object.entries(FIELD_MAP).forEach(([key,id])=>{const el=$(id);if(el)data[key]=typeof el.value==='string'?el.value.trim():el.value;});
-  ['quantity','inkColors','completedQty','damagedQty','salePrice','productCost','printCost','shippingCost','otherCost','paidAmount'].forEach(k=>data[k]=num(data[k]));
+  const items=readItems();const t=itemsTotals(items);
+  data.items=items;
+  data.quantity=t.qty;
+  data.salePrice=t.sale;
+  data.productCost=t.cost;
+  data.product=itemsSummary(items);
+  data.sku=items.length===1?items[0].sku:'';
+  data.color=items.length===1?items[0].color:'';
+  ['inkColors','completedQty','damagedQty','printCost','shippingCost','otherCost','paidAmount'].forEach(k=>data[k]=num(data[k]));
   const client=clientByName(data.client);if(client){data.clientId=client.id;data.contact=data.contact||client.contact||'';data.phone=data.phone||client.phone||'';data.email=data.email||client.email||'';}
   const supplier=supplierByName(data.supplier);if(supplier)data.supplierId=supplier.id;
   return data;
 }
 function validateOrder(data){
-  if(!data.client)return 'El cliente es obligatorio.';if(!data.product)return 'La descripción del producto es obligatoria.';if(!data.quantity||data.quantity<1)return 'La cantidad debe ser mayor que cero.';if(!data.deliveryDate)return 'La fecha estimada de entrega es obligatoria.';if(data.completedQty>data.quantity)return 'Las piezas terminadas no pueden superar la cantidad total.';if(data.paidAmount>data.salePrice&&data.salePrice>0)return 'El monto pagado no puede superar el precio de venta.';return '';
+  if(!data.client)return 'El cliente es obligatorio.';
+  if(!data.items||!data.items.length||!data.items.some(i=>i.product))return 'Agrega al menos un producto con su descripción.';
+  if(data.items.some(i=>i.product&&(!i.quantity||i.quantity<1)))return 'Cada producto debe tener una cantidad mayor que cero.';
+  if(!data.quantity||data.quantity<1)return 'La cantidad total debe ser mayor que cero.';if(!data.deliveryDate)return 'La fecha estimada de entrega es obligatoria.';if(data.completedQty>data.quantity)return 'Las piezas terminadas no pueden superar la cantidad total.';if(data.paidAmount>data.salePrice&&data.salePrice>0)return 'El monto pagado no puede superar el precio de venta.';return '';
 }
 async function nextOrderNumber(){
   const year=new Date().getFullYear();
@@ -863,8 +952,10 @@ async function syncTracking(o){
     if(!o||!o.trackingToken)return;
     if(o.deleted){await db.ref('tracking/'+o.trackingToken).remove();return;}
     const st=clientStage(o);
+    const its=orderItems(o).filter(i=>i.product).map(i=>({product:i.product,quantity:num(i.quantity)||null,color:i.color||''}));
     await db.ref('tracking/'+o.trackingToken).set({
       number:o.number||'',client:o.client||'',product:o.product||'',quantity:num(o.quantity)||null,
+      items:its.length?its:null,
       step:st.step,stage:st.label,paused:o.status==='paused',
       deliveryDate:o.deliveryDate||'',actualDeliveryDate:o.actualDeliveryDate||'',
       updatedAt:nowISO()
@@ -925,10 +1016,17 @@ function openDetail(id){
   $('detailBody').innerHTML=`
     <div class="detail-grid">
       ${detailBox('Estado',STATUS[o.status]?.label||o.status)}${detailBox('Ejecutivo',o.executive)}${detailBox('Aprobación',dateLabel(o.approvalDate))}${detailBox('Entrega estimada',dateLabel(o.deliveryDate),dueClass(o))}
-      ${detailBox('Producto',o.product)}${detailBox('SKU / color',[o.sku,o.color].filter(Boolean).join(' · '))}${detailBox('Cantidad',o.quantity?integer(o.quantity)+' piezas':'—')}${detailBox('Técnica',o.technique)}
+      ${detailBox('Productos',orderItems(o).length+' ítem'+(orderItems(o).length===1?'':'s'))}${detailBox('Cantidad total',o.quantity?integer(o.quantity)+' piezas':'—')}${detailBox('Técnica',o.technique)}${detailBox('Prioridad',o.priority==='urgent'?'Urgente':o.priority==='high'?'Alta':'Normal')}
       ${detailBox('Terminadas',o.completedQty?integer(o.completedQty):'0')}${detailBox('Dañadas',o.damagedQty?integer(o.damagedQty):'0')}${detailBox('Proveedor',o.supplier)}${detailBox('Llegada estimada',dateLabel(o.arrivalDate))}
       ${can('finance:view')?detailBox('Venta',money(o.salePrice)):''}${can('finance:view')?detailBox('Costo total',money(totalCost(o))):''}${can('finance:view')?detailBox('Ganancia',money(profit(o)),profit(o)>=0?'profit':'loss'):''}${can('finance:view')?detailBox('Saldo',money(balance(o)),balance(o)>0?'due-soon':'profit'):''}
     </div>
+    <div class="section-label">Detalle de productos</div>
+    <div style="overflow:auto"><table style="min-width:auto;width:100%"><thead style="background:#f0f3fa"><tr>
+      <th style="color:var(--muted)">Producto</th><th style="color:var(--muted)">SKU</th><th style="color:var(--muted)">Color</th><th style="color:var(--muted)">Cant.</th>
+      ${can('finance:view')?'<th style="color:var(--muted)">P. unit.</th><th style="color:var(--muted)">Subtotal</th>':''}
+    </tr></thead><tbody>
+      ${orderItems(o).map(i=>`<tr><td class="strong">${esc(i.product||'—')}</td><td>${esc(i.sku||'—')}</td><td>${esc(i.color||'—')}</td><td>${integer(i.quantity)}</td>${can('finance:view')?`<td>${money(i.unitPrice)}</td><td class="money">${money(num(i.quantity)*num(i.unitPrice))}</td>`:''}</tr>`).join('')||'<tr><td colspan="6" class="muted">Sin productos</td></tr>'}
+    </tbody></table></div>
     <div class="section-label">Contacto y entrega</div>
     <div class="detail-grid">${detailBox('Contacto',o.contact)}${detailBox('Teléfono',o.phone)}${detailBox('Correo',o.email)}${detailBox('Recibe',o.receiver)}${detailBox('Dirección',o.deliveryAddress)}${detailBox('Tipo de entrega',o.deliveryType)}${detailBox('Motorista',o.driver)}${detailBox('Entrega real',dateLabel(o.actualDeliveryDate))}</div>
     ${o.notes?`<div class="section-label">Notas generales</div><p style="font-size:12px;line-height:1.6;white-space:pre-wrap">${esc(o.notes)}</p>`:''}
@@ -949,8 +1047,15 @@ function exportCSV(){
     headers=['Orden','Cliente','Total','Pagado','Saldo','Condición','Fecha límite','Estado'];
     rows=activeOrders().filter(o=>num(o.salePrice)>0).map(o=>[o.number,o.client,num(o.salePrice).toFixed(2),num(o.paidAmount).toFixed(2),balance(o).toFixed(2),paymentTermsLabel(o.paymentTerms),o.paymentDue,balance(o)<=0?'Pagado':'Pendiente']);name='cuentas_por_cobrar';
   }else{
-    headers=['Orden','Cliente','Contacto','Teléfono','Producto','SKU','Color','Cantidad','Ejecutivo','Estado','Aprobación','Entrega','Técnica','Proveedor','Venta','Costo total','Ganancia','Margen','Pagado','Saldo','Notas'];
-    rows=filteredOrders().map(o=>[o.number,o.client,o.contact,o.phone,o.product,o.sku,o.color,o.quantity,o.executive,STATUS[o.status]?.label||o.status,o.approvalDate,o.deliveryDate,o.technique,o.supplier,num(o.salePrice).toFixed(2),totalCost(o).toFixed(2),profit(o).toFixed(2),margin(o).toFixed(1)+'%',num(o.paidAmount).toFixed(2),balance(o).toFixed(2),o.notes]);name='ordenes';
+    headers=['Orden','Cliente','Contacto','Teléfono','Producto','SKU','Color','Cantidad','P. unit.','Subtotal','Ejecutivo','Estado','Aprobación','Entrega','Técnica','Proveedor','Total orden','Costo total','Ganancia','Margen','Pagado','Saldo','Notas'];
+    rows=[];
+    filteredOrders().forEach(o=>{
+      const its=orderItems(o);
+      if(!its.length)its.push({product:o.product,sku:o.sku,color:o.color,quantity:o.quantity,unitPrice:0});
+      its.forEach((i,idx)=>{
+        rows.push([o.number,o.client,o.contact,o.phone,i.product,i.sku,i.color,i.quantity,num(i.unitPrice).toFixed(2),(num(i.quantity)*num(i.unitPrice)).toFixed(2),o.executive,STATUS[o.status]?.label||o.status,o.approvalDate,o.deliveryDate,o.technique,o.supplier,idx===0?num(o.salePrice).toFixed(2):'',idx===0?totalCost(o).toFixed(2):'',idx===0?profit(o).toFixed(2):'',idx===0?margin(o).toFixed(1)+'%':'',idx===0?num(o.paidAmount).toFixed(2):'',idx===0?balance(o).toFixed(2):'',idx===0?o.notes:'']);
+      });
+    });name='ordenes';
   }
   const csv='\uFEFF'+[headers,...rows].map(row=>row.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`winpromo_${name}_${todayISO()}.csv`;a.click();URL.revokeObjectURL(a.href);
 }

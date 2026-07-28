@@ -971,16 +971,44 @@ async function openShare(id){
   }catch(err){toast('No se pudo generar el enlace','error');return;}
   const url=trackingUrl(token);
   const st=clientStage(o);
-  const saludo=o.client?`Estimados ${o.client}`:'Estimado cliente';
-  const msg=`${saludo}: su pedido de ${o.product||''} (Orden N.º ${o.number||''}) se encuentra en la etapa "${st.label}". Entrega estimada: ${dateLabel(o.deliveryDate)}. Puede ver el avance en tiempo real aquí: ${url}\n— WinPromo El Salvador`;
+  const saludo=o.client?`Estimados ${o.client}:`:'Estimado cliente:';
+  const linea2=`Su pedido de ${o.product||''}${o.number?` (Orden N.º ${o.number})`:''}`;
+  // WhatsApp admite *negrita*; el correo va en texto plano
+  const msgWA=[
+    saludo,
+    linea2,
+    '',
+    `Se encuentra en la etapa: *${st.label}*`,
+    `Entrega estimada: *${dateLabel(o.deliveryDate)}*`,
+    '',
+    'Puede consultar el avance en tiempo real aquí:',
+    url,
+    '',
+    'Gracias por su confianza.',
+    '— WinPromo El Salvador'
+  ].join('\n');
+  const msgMail=[
+    saludo,
+    linea2,
+    '',
+    `Se encuentra en la etapa: ${st.label}`,
+    `Entrega estimada: ${dateLabel(o.deliveryDate)}`,
+    '',
+    'Puede consultar el avance en tiempo real aquí:',
+    url,
+    '',
+    'Gracias por su confianza.',
+    '— WinPromo El Salvador',
+    'winpromosv.com'
+  ].join('\n');
   $('shareLink').value=url;
   $('shareWhatsApp').onclick=()=>{
     const digits=String(o.phone||'').replace(/\D/g,'');
     const target=digits.length===8?('503'+digits):digits;
-    window.open('https://wa.me/'+(target?target:'')+'?text='+encodeURIComponent(msg),'_blank');
+    window.open('https://wa.me/'+(target?target:'')+'?text='+encodeURIComponent(msgWA),'_blank');
   };
   $('shareEmail').onclick=()=>{
-    window.location.href='mailto:'+encodeURIComponent(o.email||'')+'?subject='+encodeURIComponent('Avance de su pedido '+(o.number||'')+' — WinPromo')+'&body='+encodeURIComponent(msg);
+    window.location.href='mailto:'+encodeURIComponent(o.email||'')+'?subject='+encodeURIComponent('Estado de su pedido '+(o.number?'N.º '+o.number+' ':'')+'— WinPromo')+'&body='+encodeURIComponent(msgMail);
   };
   openOverlay('shareOverlay');
 }

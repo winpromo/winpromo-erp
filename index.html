@@ -971,7 +971,8 @@ async function openShare(id){
   }catch(err){toast('No se pudo generar el enlace','error');return;}
   const url=trackingUrl(token);
   const st=clientStage(o);
-  const msg=`Estimado cliente: su pedido de ${o.product||''} (Orden N.º ${o.number||''}) se encuentra en la etapa "${st.label}". Entrega estimada: ${dateLabel(o.deliveryDate)}. Puede ver el avance en tiempo real aquí: ${url}\n— WinPromo El Salvador`;
+  const saludo=o.contact?`Estimado/a ${o.contact}`:(o.client?`Estimados ${o.client}`:'Estimado cliente');
+  const msg=`${saludo}: su pedido de ${o.product||''} (Orden N.º ${o.number||''}) se encuentra en la etapa "${st.label}". Entrega estimada: ${dateLabel(o.deliveryDate)}. Puede ver el avance en tiempo real aquí: ${url}\n— WinPromo El Salvador`;
   $('shareLink').value=url;
   $('shareWhatsApp').onclick=()=>{
     const digits=String(o.phone||'').replace(/\D/g,'');

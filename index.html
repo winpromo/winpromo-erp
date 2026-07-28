@@ -373,7 +373,7 @@ tbody td{padding:10px 13px;font-size:13px;vertical-align:middle}
       <h2 id="topbar-title">Dashboard</h2>
       <p id="topbar-date"></p>
     </div>
-    <div class="topbar-right"><span id="sync-status" style="font-size:11px;color:var(--muted);white-space:nowrap">☁️ Google Sheets</span>
+    <div class="topbar-right"><span id="sync-status" style="font-size:11px;color:var(--muted);white-space:nowrap">☁️ Firebase</span>
       <div class="search-box">
         <span class="si">🔍</span>
         <input type="text" id="buscar" placeholder="Buscar orden, cliente…" oninput="renderTabla()"/>
@@ -410,8 +410,13 @@ tbody td{padding:10px 13px;font-size:13px;vertical-align:middle}
 
       <div class="dash-grid">
         <div class="panel">
-          <div class="panel-title">Producción mensual</div>
-          <div class="panel-sub">Órdenes registradas por mes</div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+            <div>
+              <div class="panel-title">Producción mensual</div>
+              <div class="panel-sub">Órdenes registradas por mes</div>
+            </div>
+            <select id="chart-year" onchange="renderCharts()" style="font-family:'Outfit',sans-serif;font-size:12.5px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--navy);cursor:pointer"></select>
+          </div>
           <canvas id="chartMensual" height="130"></canvas>
         </div>
         <div class="panel">
@@ -699,6 +704,11 @@ function updateStats(){
   const activas=ordenes.filter(o=>o.estado!=='listo').length;
   const facturado=ordenes.reduce((a,o)=>a+(parseFloat(o.monto)||0),0);
   const ganancia=ordenes.reduce((a,o)=>a+((parseFloat(o.monto)||0)-(parseFloat(o.costo)||0)),0);
+  // Solo el mes actual (por fecha de aprobación) para el panel lateral
+  const _hoy=new Date(), _ym=`${_hoy.getFullYear()}-${String(_hoy.getMonth()+1).padStart(2,'0')}`;
+  const ordMes=ordenes.filter(o=>o.fechaApro&&o.fechaApro.startsWith(_ym));
+  const facturadoMes=ordMes.reduce((a,o)=>a+(parseFloat(o.monto)||0),0);
+  const gananciaMes=ordMes.reduce((a,o)=>a+((parseFloat(o.monto)||0)-(parseFloat(o.costo)||0)),0);
 
   document.getElementById('s-total').textContent=tot;
   document.getElementById('s-prod').textContent=prod;
@@ -709,8 +719,8 @@ function updateStats(){
   ge.textContent=fmt$(ganancia);
   ge.className='stat-val '+(ganancia>=0?'gan-pos':'gan-neg');
   document.getElementById('s-facturado-sub').textContent='Facturado: '+fmt$(facturado);
-  document.getElementById('sb-facturado').textContent=fmt$(facturado);
-  document.getElementById('sb-ganancia-mes').textContent='Ganancia: '+fmt$(ganancia);
+  document.getElementById('sb-facturado').textContent=fmt$(facturadoMes);
+  document.getElementById('sb-ganancia-mes').textContent='Ganancia: '+fmt$(gananciaMes);
   document.getElementById('sb-activas').textContent=activas;
 
   // exec filter
@@ -723,10 +733,22 @@ function updateStats(){
 
 // ── CHARTS ───────────────────────────────────────────
 function renderCharts(){
-  // mensual
+  // mensual — filtrado por año seleccionado
   const months=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const yearSel=document.getElementById('chart-year');
+  const curYear=new Date().getFullYear();
+  // Años disponibles: los que aparecen en las órdenes + el actual
+  const years=[...new Set([curYear, ...ordenes.filter(o=>o.fechaApro).map(o=>parseInt(o.fechaApro.split('-')[0]))])].sort((a,b)=>b-a);
+  const prev=yearSel.value?parseInt(yearSel.value):curYear;
+  yearSel.innerHTML=years.map(y=>`<option value="${y}" ${y===prev?'selected':''}>${y}</option>`).join('');
+  const selYear=parseInt(yearSel.value);
   const counts=new Array(12).fill(0);
-  ordenes.forEach(o=>{if(o.fechaApro){const m=parseInt(o.fechaApro.split('-')[1])-1;counts[m]++}});
+  ordenes.forEach(o=>{
+    if(o.fechaApro){
+      const [y,m]=o.fechaApro.split('-');
+      if(parseInt(y)===selYear)counts[parseInt(m)-1]++;
+    }
+  });
   const ctx1=document.getElementById('chartMensual');
   if(chartMen)chartMen.destroy();
   chartMen=new Chart(ctx1,{

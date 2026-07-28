@@ -190,7 +190,7 @@ a{color:inherit}
         <div id="tab-general" class="tab-panel active">
           <div class="form-grid">
             <div class="field"><label>N.º de orden</label><input id="fNumber" placeholder="Escribe el número, o deja vacío para automático" /></div>
-            <div class="field"><label>Ejecutivo</label><input id="fExecutive" list="executiveList" placeholder="Nombre del ejecutivo" required /></div>
+            <div class="field"><label>Ejecutivo</label><div style="display:flex;gap:6px"><input id="fExecutive" list="executiveList" placeholder="Escribe o elige un ejecutivo" required style="flex:1" /><button type="button" class="btn btn-light" onclick="addExecutive()" title="Guardar este ejecutivo en la lista"><i data-lucide="user-plus" class="icon"></i></button></div></div>
             <div class="field full"><label>Cliente *</label><input id="fClient" list="clientList" placeholder="Empresa o cliente" required /></div>
             <div class="field"><label>Contacto</label><input id="fContact" placeholder="Persona de contacto" /></div>
             <div class="field"><label>Teléfono</label><input id="fPhone" placeholder="0000-0000" /></div>
@@ -332,7 +332,8 @@ const refs = {
   suppliers: db.ref('proveedores'),
   users: db.ref('usuarios'),
   counters: db.ref('contadores'),
-  globalAudit: db.ref('actividad')
+  globalAudit: db.ref('actividad'),
+  executives: db.ref('usuarios/_ejecutivos')
 };
 
 const STATUS = {
@@ -369,7 +370,7 @@ const state = {
   currentView:'dashboard', editingOrderId:null, detailOrderId:null,
   pendingFiles:[], removedFiles:[], orderPage:1, orderPageSize:20,
   entityType:null, entityId:null, paymentOrderId:null, calDate:new Date(), listenersStarted:false,
-  salesChart:null,statusChart:null, confirmResolver:null, connected:false
+  salesChart:null,statusChart:null, confirmResolver:null, connected:false, executives:[]
 };
 
 const $ = id => document.getElementById(id);
@@ -536,6 +537,7 @@ function startRealtime(){
   refs.clients.on('value',snap=>{state.clients=safeSnapshotObject(snap).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));renderClients();refreshLists();});
   refs.suppliers.on('value',snap=>{state.suppliers=safeSnapshotObject(snap).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));renderSuppliers();refreshLists();});
   refs.globalAudit.limitToLast(30).on('value',snap=>{state.activities=safeSnapshotObject(snap).sort((a,b)=>num(b.at)-num(a.at));renderActivity();});
+  refs.executives.on('value',snap=>{const v=snap.val()||{};state.executives=Object.values(v).filter(Boolean).map(String);refreshLists();},err=>console.warn('Ejecutivos:',err));
 }
 
 function initializeUI(){
@@ -569,7 +571,7 @@ function populateStatuses(){
 function refreshLists(){
   $('clientList').innerHTML=state.clients.map(c=>`<option value="${esc(c.name)}"></option>`).join('');
   $('supplierList').innerHTML=state.suppliers.map(s=>`<option value="${esc(s.name)}"></option>`).join('');
-  const executives=[...new Set(activeOrders().map(o=>o.executive).filter(Boolean))].sort();
+  const executives=[...new Set([...state.executives,...activeOrders().map(o=>o.executive)].filter(Boolean))].sort();
   $('executiveList').innerHTML=executives.map(x=>`<option value="${esc(x)}"></option>`).join('');
   const selects=['dashExecutive','orderExecutive','kanExecutive'];
   selects.forEach(id=>{const el=$(id),current=el.value;el.innerHTML='<option value="">Todos los ejecutivos</option>'+executives.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');el.value=current;});
@@ -763,7 +765,7 @@ function clearOrderForm(){
 function openOrderModal(id=null){
   if(id&&!can('orders:edit'))return;if(!id&&!can('orders:create'))return;state.editingOrderId=id;clearOrderForm();$('orderModalTitle').textContent=id?'Editar orden':'Nueva orden';
   const order=id?orderById(id):null;if(order){Object.entries(FIELD_MAP).forEach(([key,fieldId])=>{if($(fieldId))$(fieldId).value=order[key]??'';});state.pendingFiles=(order.files||[]).map(f=>({...f,existing:true}));}
-  else{$('fExecutive').value=userLabel();$('fDeliveryDate').value='';}
+  else{$('fExecutive').value=state.executives.length?'':userLabel();$('fDeliveryDate').value='';}
   const firstTab=document.querySelector('.tab[data-tab="general"]');switchOrderTab(firstTab);renderFileList();calculateFinancePreview();openOverlay('orderOverlay');
 }
 function closeOrderModal(){closeOverlay('orderOverlay');state.editingOrderId=null;state.pendingFiles=[];state.removedFiles=[];}
@@ -823,6 +825,17 @@ async function upsertClientFromOrder(data){
 async function upsertSupplierFromOrder(data){
   if(!data.supplier)return;const existing=supplierByName(data.supplier);if(existing)return;const id=refs.suppliers.push().key;await refs.suppliers.child(id).set({id,name:data.supplier,createdAt:nowISO(),createdBy:state.user.uid});
 }
+async function addExecutive(){
+  const name=$('fExecutive').value.trim();
+  if(!name){toast('Escribe primero el nombre del ejecutivo','warn');return;}
+  if(state.executives.some(x=>x.toLowerCase()===name.toLowerCase())){toast(name+' ya está en la lista');return;}
+  try{
+    const key=refs.executives.push().key;
+    await refs.executives.child(key).set(name);
+    toast(name+' agregado a la lista de ejecutivos');
+  }catch(err){console.error(err);toast('No se pudo guardar el ejecutivo','error');}
+}
+
 function calculateFinancePreview(){
   const sale=num($('fSalePrice').value),cost=num($('fProductCost').value)+num($('fPrintCost').value)+num($('fShippingCost').value)+num($('fOtherCost').value),prof=sale-cost,paid=num($('fPaidAmount').value),m=sale?prof/sale*100:0;
   $('pTotalCost').textContent=money(cost);$('pProfit').textContent=money(prof);$('pProfit').className=prof>=0?'profit':'loss';$('pMargin').textContent=m.toFixed(1)+'%';$('pBalance').textContent=money(Math.max(0,sale-paid));

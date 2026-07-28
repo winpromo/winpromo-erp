@@ -189,7 +189,7 @@ a{color:inherit}
       <form id="orderForm" onsubmit="event.preventDefault();saveOrder()">
         <div id="tab-general" class="tab-panel active">
           <div class="form-grid">
-            <div class="field"><label>N.º de orden</label><input id="fNumber" placeholder="Automático al guardar" readonly /></div>
+            <div class="field"><label>N.º de orden</label><input id="fNumber" placeholder="Escribe el número, o deja vacío para automático" /></div>
             <div class="field"><label>Ejecutivo</label><input id="fExecutive" list="executiveList" placeholder="Nombre del ejecutivo" required /></div>
             <div class="field full"><label>Cliente *</label><input id="fClient" list="clientList" placeholder="Empresa o cliente" required /></div>
             <div class="field"><label>Contacto</label><input id="fContact" placeholder="Persona de contacto" /></div>
@@ -789,7 +789,13 @@ async function saveOrder(){
   const btn=$('saveOrderBtn');btn.disabled=true;setSync('Guardando orden…','saving');
   try{
     const isNew=!state.editingOrderId;const id=state.editingOrderId||refs.orders.push().key;const old=isNew?null:orderById(id);
-    if(isNew)data.number=await nextOrderNumber();else data.number=old.number||data.number;
+    const typedNumber=String(data.number||'').trim();
+    if(typedNumber){
+      const dup=state.orders.find(x=>x.id!==id&&String(x.number||'').toLowerCase()===typedNumber.toLowerCase());
+      if(dup){toast('Ya existe una orden con el número '+typedNumber,'warn');btn.disabled=false;setSync(state.connected?'Conectado a Firebase':'Sin conexión',state.connected?'ok':'error');return;}
+      data.number=typedNumber;
+    }else if(isNew){data.number=await nextOrderNumber();}
+    else{data.number=old.number||'';}
     data.id=id;data.updatedAt=nowISO();data.updatedBy=state.user.uid;data.updatedByName=userLabel();
     if(isNew){data.createdAt=nowISO();data.createdBy=state.user.uid;data.createdByName=userLabel();data.deleted=false;}
     // Archivos: por ahora se guarda solo la referencia (nombre, tamaño, tipo)
@@ -861,7 +867,7 @@ async function openShare(id){
   }catch(err){toast('No se pudo generar el enlace','error');return;}
   const url=trackingUrl(token);
   const st=clientStage(o);
-  const msg=`Estimado cliente: su pedido ${o.number||''} (${o.product||''}) se encuentra en la etapa "${st.label}". Entrega estimada: ${dateLabel(o.deliveryDate)}. Puede ver el avance en tiempo real aquí: ${url}\n— WinPromo El Salvador`;
+  const msg=`Estimado cliente: su pedido de ${o.product||''} (Orden N.º ${o.number||''}) se encuentra en la etapa "${st.label}". Entrega estimada: ${dateLabel(o.deliveryDate)}. Puede ver el avance en tiempo real aquí: ${url}\n— WinPromo El Salvador`;
   $('shareLink').value=url;
   $('shareWhatsApp').onclick=()=>{
     const digits=String(o.phone||'').replace(/\D/g,'');

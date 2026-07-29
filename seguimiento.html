@@ -123,6 +123,12 @@ function dateLabel(v){
   const d=new Date(v+'T12:00:00');
   return Number.isNaN(d.getTime())?'Por confirmar':d.toLocaleDateString('es-SV',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).replace(/^./,x=>x.toUpperCase());
 }
+function shortDate(v){
+  if(!v) return '';
+  const d = new Date(v);
+  if(Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('es-SV',{day:'numeric',month:'short',year:'numeric'});
+}
 function dateTimeLabel(v){
   if(!v) return '';
   const d=new Date(v);
@@ -156,13 +162,17 @@ else{
     if((t.v===2?Number(t.step):REMAP_V1[Number(t.step)||0])===FINAL) chip.classList.add('done');
     if(t.paused) chip.classList.add('paused');
     const step = (t.v === 2) ? Number(t.step)||0 : (REMAP_V1[Number(t.step)||0] ?? 0);
+    const log = t.stageLog || {};
     $('tSteps').innerHTML = STEPS.map((s,i)=>{
       const done = i < step || step === FINAL;
       const current = i === step;
       const cls = done ? (current ? 'done current' : 'done') : (current ? 'current' : '');
       const badge = current && step !== FINAL ? `<span>${t.paused?'En pausa':'Etapa actual'}</span>` : '';
-      const note = s.note && i >= step && step !== FINAL ? `<span class="note">${s.note}</span>` : '';
-      return `<div class="step ${cls}"><div class="step-icon">${done ? '✓' : s.icon}</div><div class="step-copy"><b>${s.label}</b>${badge}${note}</div></div>`;
+      const fecha = log[i] ? shortDate(log[i]) : '';
+      const meta = fecha
+        ? `<span class="note">${fecha}${s.note && !done ? ' · ' + s.note : ''}</span>`
+        : (s.note ? `<span class="note">${s.note}</span>` : '');
+      return `<div class="step ${cls}"><div class="step-icon">${done ? '✓' : s.icon}</div><div class="step-copy"><b>${s.label}</b>${badge}${meta}</div></div>`;
     }).join('');
     if(step===FINAL){
       $('tDelLabel').textContent='Entregado el';

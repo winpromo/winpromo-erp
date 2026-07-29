@@ -350,7 +350,8 @@ const refs = {
 
 // Orden alineado con las 7 etapas que ve el cliente:
 // 1 Pedido confirmado · 2 En camino a El Salvador · 3 Diseño y arte
-// 4 Productos recibidos en El Salvador · 5 En producción · 6 Listo para entrega · 7 Entregado
+// 4 Productos recibidos en El Salvador · 5 En producción · 6 Listo para entrega
+// 7 En ruta de entrega · 8 Entregado
 const STATUS = {
   approved:{label:'Cotización aprobada',color:'#7457c7',badge:'badge-purple',progress:6},
   advance:{label:'Anticipo recibido',color:'#0e9ec2',badge:'badge-cyan',progress:12},
@@ -939,8 +940,8 @@ function calculateFinancePreview(){
 // =====================================================
 function clientStage(o){
   const s=o.status;
-  if(['delivered','payment_pending','closed'].includes(s))return{step:6,label:'Entregado'};
-  if(s==='delivery')return{step:5,label:'En ruta de entrega'};
+  if(['delivered','payment_pending','closed'].includes(s))return{step:7,label:'Entregado'};
+  if(s==='delivery')return{step:6,label:'En ruta de entrega'};
   if(s==='ready')return{step:5,label:'Listo para entrega'};
   if(['production','quality','packing'].includes(s))return{step:4,label:'En producción'};
   if(s==='received')return{step:3,label:'Productos recibidos en El Salvador'};
@@ -962,23 +963,24 @@ async function syncTracking(o){
     // Bitácora de fechas: se guarda cuándo se alcanzó cada etapa visible
     const log={};
     // Esquema anterior (6 etapas) → nuevo (7 etapas)
-    const MAP_V2_V3={0:0,1:1,2:2,3:4,4:5,5:6};
-    const usaV3 = o.stageLogV===3;
+    const MAP_V2={0:0,1:1,2:2,3:4,4:5,5:7};
+    const MAP_V3={0:0,1:1,2:2,3:3,4:4,5:5,6:7};
+    const ver = o.stageLogV||2;
     Object.entries(o.stageLog||{}).forEach(([k,v])=>{
       if(!v)return;
-      const nk = usaV3 ? k : MAP_V2_V3[Number(k)];
+      const nk = ver===4 ? k : (ver===3 ? MAP_V3[Number(k)] : MAP_V2[Number(k)]);
       if(nk!==undefined) log[nk]=v;
     });
     if(!log['0']&&o.approvalDate)log['0']=o.approvalDate+'T12:00:00';
     const key=String(st.step);
-    if(st.step===5&&o.actualDeliveryDate)log[key]=o.actualDeliveryDate+'T12:00:00';
+    if(st.step===7&&o.actualDeliveryDate)log[key]=o.actualDeliveryDate+'T12:00:00';
     else if(!log[key])log[key]=nowISO();
-    if(o.id){try{await refs.orders.child(o.id).update({stageLog:log,stageLogV:3});}catch(_e){}}
+    if(o.id){try{await refs.orders.child(o.id).update({stageLog:log,stageLogV:4});}catch(_e){}}
     const its=orderItems(o).filter(i=>i.product).map(i=>({product:i.product,quantity:num(i.quantity)||null,color:i.color||''}));
     await db.ref('tracking/'+o.trackingToken).set({
       number:o.number||'',client:o.client||'',product:o.product||'',quantity:num(o.quantity)||null,
       items:its.length?its:null,
-      step:st.step,stage:st.label,paused:o.status==='paused',v:3,stageLog:log,
+      step:st.step,stage:st.label,paused:o.status==='paused',v:4,stageLog:log,
       deliveryDate:o.deliveryDate||'',actualDeliveryDate:o.actualDeliveryDate||'',
       updatedAt:nowISO()
     });

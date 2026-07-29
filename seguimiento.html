@@ -113,22 +113,26 @@ const STEPS = [
   {label:'Productos recibidos en El Salvador', icon:'📥'},
   {label:'En producción', icon:'⚙️'},
   {label:'Listo para entrega', icon:'📦'},
+  {label:'En ruta de entrega', icon:'🚚'},
   {label:'Entregado', icon:'🏁'}
 ];
 const FINAL = STEPS.length - 1;
 // Compatibilidad con enlaces creados antes de los cambios de etapas
-const REMAP_V1 = {0:0, 1:2, 2:4, 3:5, 4:6};   // escala de 5 pasos
-const REMAP_V2 = {0:0, 1:1, 2:2, 3:4, 4:5, 5:6}; // escala de 6 pasos
+const REMAP = {
+  1: {0:0, 1:2, 2:4, 3:5, 4:7},              // escala de 5 pasos
+  2: {0:0, 1:1, 2:2, 3:4, 4:5, 5:7},         // escala de 6 pasos
+  3: {0:0, 1:1, 2:2, 3:3, 4:4, 5:5, 6:7}     // escala de 7 pasos
+};
 function normStep(t){
   const n = Number(t.step)||0;
-  if(t.v === 3) return n;
-  if(t.v === 2) return REMAP_V2[n] ?? 0;
-  return REMAP_V1[n] ?? 0;
+  if(t.v === 4) return n;
+  const map = REMAP[t.v] || REMAP[1];
+  return map[n] ?? 0;
 }
 function normLog(t){
   const raw = t.stageLog || {};
-  if(t.v === 3) return raw;
-  const map = t.v === 2 ? REMAP_V2 : REMAP_V1;
+  if(t.v === 4) return raw;
+  const map = REMAP[t.v] || REMAP[1];
   const out = {};
   Object.entries(raw).forEach(([k,v])=>{ const nk = map[Number(k)]; if(nk!==undefined && v) out[nk]=v; });
   return out;

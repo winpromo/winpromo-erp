@@ -348,18 +348,18 @@ const refs = {
   executives: db.ref('usuarios/_ejecutivos')
 };
 
-// Orden alineado con las 6 etapas que ve el cliente:
+// Orden alineado con las 7 etapas que ve el cliente:
 // 1 Pedido confirmado · 2 En camino a El Salvador · 3 Diseño y arte
-// 4 En producción · 5 Listo para entrega · 6 Entregado
+// 4 Productos recibidos en El Salvador · 5 En producción · 6 Listo para entrega · 7 Entregado
 const STATUS = {
   approved:{label:'Cotización aprobada',color:'#7457c7',badge:'badge-purple',progress:6},
   advance:{label:'Anticipo recibido',color:'#0e9ec2',badge:'badge-cyan',progress:12},
   purchasing:{label:'Compra a proveedor',color:'#8a6f42',badge:'badge-gray',progress:20},
   transit:{label:'En camino a El Salvador',color:'#3477dc',badge:'badge-blue',progress:28},
-  received:{label:'Producto recibido',color:'#0e9ec2',badge:'badge-cyan',progress:38},
-  art_pending:{label:'Arte pendiente',color:'#ed9418',badge:'badge-orange',progress:45},
-  art_sent:{label:'Arte enviado',color:'#3477dc',badge:'badge-blue',progress:52},
-  art_approved:{label:'Arte aprobado',color:'#15976a',badge:'badge-green',progress:58},
+  art_pending:{label:'Arte pendiente',color:'#ed9418',badge:'badge-orange',progress:36},
+  art_sent:{label:'Arte enviado',color:'#3477dc',badge:'badge-blue',progress:44},
+  art_approved:{label:'Arte aprobado',color:'#15976a',badge:'badge-green',progress:52},
+  received:{label:'Productos recibidos en El Salvador',color:'#0e9ec2',badge:'badge-cyan',progress:60},
   production:{label:'Personalización',color:'#ed9418',badge:'badge-orange',progress:68},
   quality:{label:'Control de calidad',color:'#7457c7',badge:'badge-purple',progress:76},
   packing:{label:'Empaque',color:'#3477dc',badge:'badge-blue',progress:84},
@@ -939,11 +939,11 @@ function calculateFinancePreview(){
 // =====================================================
 function clientStage(o){
   const s=o.status;
-  if(['delivered','payment_pending','closed'].includes(s))return{step:5,label:'Entregado'};
-  if(s==='delivery')return{step:4,label:'En ruta de entrega'};
-  if(s==='ready')return{step:4,label:'Listo para entrega'};
-  if(['production','quality','packing'].includes(s))return{step:3,label:'En producción'};
-  if(s==='received')return{step:2,label:'Producto recibido en El Salvador'};
+  if(['delivered','payment_pending','closed'].includes(s))return{step:6,label:'Entregado'};
+  if(s==='delivery')return{step:5,label:'En ruta de entrega'};
+  if(s==='ready')return{step:5,label:'Listo para entrega'};
+  if(['production','quality','packing'].includes(s))return{step:4,label:'En producción'};
+  if(s==='received')return{step:3,label:'Productos recibidos en El Salvador'};
   if(['art_pending','art_sent','art_approved'].includes(s))return{step:2,label:'Diseño y aprobación de arte'};
   if(s==='transit')return{step:1,label:'En camino a El Salvador'};
   if(s==='purchasing')return{step:1,label:'Pedido en tránsito'};
@@ -961,17 +961,24 @@ async function syncTracking(o){
     const st=clientStage(o);
     // Bitácora de fechas: se guarda cuándo se alcanzó cada etapa visible
     const log={};
-    Object.entries(o.stageLog||{}).forEach(([k,v])=>{if(v)log[k]=v;});
+    // Esquema anterior (6 etapas) → nuevo (7 etapas)
+    const MAP_V2_V3={0:0,1:1,2:2,3:4,4:5,5:6};
+    const usaV3 = o.stageLogV===3;
+    Object.entries(o.stageLog||{}).forEach(([k,v])=>{
+      if(!v)return;
+      const nk = usaV3 ? k : MAP_V2_V3[Number(k)];
+      if(nk!==undefined) log[nk]=v;
+    });
     if(!log['0']&&o.approvalDate)log['0']=o.approvalDate+'T12:00:00';
     const key=String(st.step);
     if(st.step===5&&o.actualDeliveryDate)log[key]=o.actualDeliveryDate+'T12:00:00';
     else if(!log[key])log[key]=nowISO();
-    if(o.id){try{await refs.orders.child(o.id).child('stageLog').update(log);}catch(_e){}}
+    if(o.id){try{await refs.orders.child(o.id).update({stageLog:log,stageLogV:3});}catch(_e){}}
     const its=orderItems(o).filter(i=>i.product).map(i=>({product:i.product,quantity:num(i.quantity)||null,color:i.color||''}));
     await db.ref('tracking/'+o.trackingToken).set({
       number:o.number||'',client:o.client||'',product:o.product||'',quantity:num(o.quantity)||null,
       items:its.length?its:null,
-      step:st.step,stage:st.label,paused:o.status==='paused',v:2,stageLog:log,
+      step:st.step,stage:st.label,paused:o.status==='paused',v:3,stageLog:log,
       deliveryDate:o.deliveryDate||'',actualDeliveryDate:o.actualDeliveryDate||'',
       updatedAt:nowISO()
     });

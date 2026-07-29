@@ -110,13 +110,29 @@ const STEPS = [
   {label:'Pedido confirmado', icon:'✓'},
   {label:'En camino a El Salvador', icon:'✈️', note:'Tiempo estimado: 5 días'},
   {label:'Diseño y aprobación de arte', icon:'🎨'},
+  {label:'Productos recibidos en El Salvador', icon:'📥'},
   {label:'En producción', icon:'⚙️'},
   {label:'Listo para entrega', icon:'📦'},
   {label:'Entregado', icon:'🏁'}
 ];
 const FINAL = STEPS.length - 1;
-// Enlaces creados antes del cambio de etapas (escala de 5 pasos)
-const REMAP_V1 = {0:0, 1:2, 2:3, 3:4, 4:5};
+// Compatibilidad con enlaces creados antes de los cambios de etapas
+const REMAP_V1 = {0:0, 1:2, 2:4, 3:5, 4:6};   // escala de 5 pasos
+const REMAP_V2 = {0:0, 1:1, 2:2, 3:4, 4:5, 5:6}; // escala de 6 pasos
+function normStep(t){
+  const n = Number(t.step)||0;
+  if(t.v === 3) return n;
+  if(t.v === 2) return REMAP_V2[n] ?? 0;
+  return REMAP_V1[n] ?? 0;
+}
+function normLog(t){
+  const raw = t.stageLog || {};
+  if(t.v === 3) return raw;
+  const map = t.v === 2 ? REMAP_V2 : REMAP_V1;
+  const out = {};
+  Object.entries(raw).forEach(([k,v])=>{ const nk = map[Number(k)]; if(nk!==undefined && v) out[nk]=v; });
+  return out;
+}
 const $ = id => document.getElementById(id);
 function dateLabel(v){
   if(!v) return 'Por confirmar';
@@ -159,10 +175,10 @@ else{
     $('tStage').textContent = t.stage || '';
     const chip=$('tChip');
     chip.classList.remove('done','paused');
-    if((t.v===2?Number(t.step):REMAP_V1[Number(t.step)||0])===FINAL) chip.classList.add('done');
+    if(normStep(t)===FINAL) chip.classList.add('done');
     if(t.paused) chip.classList.add('paused');
-    const step = (t.v === 2) ? Number(t.step)||0 : (REMAP_V1[Number(t.step)||0] ?? 0);
-    const log = t.stageLog || {};
+    const step = normStep(t);
+    const log = normLog(t);
     $('tSteps').innerHTML = STEPS.map((s,i)=>{
       const done = i < step || step === FINAL;
       const current = i === step;

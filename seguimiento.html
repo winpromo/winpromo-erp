@@ -168,10 +168,12 @@ else{
       const current = i === step;
       const cls = done ? (current ? 'done current' : 'done') : (current ? 'current' : '');
       const badge = current && step !== FINAL ? `<span>${t.paused?'En pausa':'Etapa actual'}</span>` : '';
-      const fecha = log[i] ? shortDate(log[i]) : '';
-      const meta = fecha
-        ? `<span class="note">${fecha}${s.note && !done ? ' · ' + s.note : ''}</span>`
-        : (s.note ? `<span class="note">${s.note}</span>` : '');
+      // La fecha solo se muestra en etapas ya alcanzadas; la nota siempre
+      const fecha = (i <= step && log[i]) ? shortDate(log[i]) : '';
+      const partes = [];
+      if (fecha) partes.push(fecha);
+      if (s.note) partes.push(s.note);
+      const meta = partes.length ? `<span class="note">${partes.join(' · ')}</span>` : '';
       return `<div class="step ${cls}"><div class="step-icon">${done ? '✓' : s.icon}</div><div class="step-copy"><b>${s.label}</b>${badge}${meta}</div></div>`;
     }).join('');
     if(step===FINAL){

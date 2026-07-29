@@ -348,20 +348,23 @@ const refs = {
   executives: db.ref('usuarios/_ejecutivos')
 };
 
+// Orden alineado con las 6 etapas que ve el cliente:
+// 1 Pedido confirmado · 2 En camino a El Salvador · 3 Diseño y arte
+// 4 En producción · 5 Listo para entrega · 6 Entregado
 const STATUS = {
-  approved:{label:'Cotización aprobada',color:'#7457c7',badge:'badge-purple',progress:8},
-  advance:{label:'Anticipo recibido',color:'#0e9ec2',badge:'badge-cyan',progress:14},
-  art_pending:{label:'Arte pendiente',color:'#ed9418',badge:'badge-orange',progress:20},
-  art_sent:{label:'Arte enviado',color:'#3477dc',badge:'badge-blue',progress:27},
-  art_approved:{label:'Arte aprobado',color:'#15976a',badge:'badge-green',progress:34},
-  purchasing:{label:'Compra a proveedor',color:'#8a6f42',badge:'badge-gray',progress:42},
-  transit:{label:'En camino a El Salvador',color:'#3477dc',badge:'badge-blue',progress:47},
-  received:{label:'Producto recibido',color:'#0e9ec2',badge:'badge-cyan',progress:52},
-  production:{label:'Personalización',color:'#ed9418',badge:'badge-orange',progress:62},
-  quality:{label:'Control de calidad',color:'#7457c7',badge:'badge-purple',progress:72},
-  packing:{label:'Empaque',color:'#3477dc',badge:'badge-blue',progress:80},
-  ready:{label:'Listo para entregar',color:'#15976a',badge:'badge-green',progress:88},
-  delivery:{label:'En ruta',color:'#3477dc',badge:'badge-blue',progress:94},
+  approved:{label:'Cotización aprobada',color:'#7457c7',badge:'badge-purple',progress:6},
+  advance:{label:'Anticipo recibido',color:'#0e9ec2',badge:'badge-cyan',progress:12},
+  purchasing:{label:'Compra a proveedor',color:'#8a6f42',badge:'badge-gray',progress:20},
+  transit:{label:'En camino a El Salvador',color:'#3477dc',badge:'badge-blue',progress:28},
+  received:{label:'Producto recibido',color:'#0e9ec2',badge:'badge-cyan',progress:38},
+  art_pending:{label:'Arte pendiente',color:'#ed9418',badge:'badge-orange',progress:45},
+  art_sent:{label:'Arte enviado',color:'#3477dc',badge:'badge-blue',progress:52},
+  art_approved:{label:'Arte aprobado',color:'#15976a',badge:'badge-green',progress:58},
+  production:{label:'Personalización',color:'#ed9418',badge:'badge-orange',progress:68},
+  quality:{label:'Control de calidad',color:'#7457c7',badge:'badge-purple',progress:76},
+  packing:{label:'Empaque',color:'#3477dc',badge:'badge-blue',progress:84},
+  ready:{label:'Listo para entregar',color:'#15976a',badge:'badge-green',progress:90},
+  delivery:{label:'En ruta',color:'#3477dc',badge:'badge-blue',progress:95},
   delivered:{label:'Entregado',color:'#15976a',badge:'badge-green',progress:100},
   payment_pending:{label:'Pendiente de cobro',color:'#ed9418',badge:'badge-orange',progress:100},
   closed:{label:'Cerrado',color:'#15976a',badge:'badge-green',progress:100},

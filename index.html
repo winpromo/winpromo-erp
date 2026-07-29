@@ -935,11 +935,13 @@ function calculateFinancePreview(){
 // =====================================================
 function clientStage(o){
   const s=o.status;
-  if(['delivered','payment_pending','closed'].includes(s))return{step:4,label:'Entregado'};
-  if(s==='delivery')return{step:3,label:'En ruta de entrega'};
-  if(s==='ready')return{step:3,label:'Listo para entrega'};
-  if(['purchasing','received','production','quality','packing'].includes(s))return{step:2,label:'En producción'};
-  if(['art_pending','art_sent','art_approved'].includes(s))return{step:1,label:'Diseño y aprobación de arte'};
+  if(['delivered','payment_pending','closed'].includes(s))return{step:5,label:'Entregado'};
+  if(s==='delivery')return{step:4,label:'En ruta de entrega'};
+  if(s==='ready')return{step:4,label:'Listo para entrega'};
+  if(['production','quality','packing'].includes(s))return{step:3,label:'En producción'};
+  if(s==='received')return{step:2,label:'Producto recibido en El Salvador'};
+  if(['art_pending','art_sent','art_approved'].includes(s))return{step:2,label:'Diseño y aprobación de arte'};
+  if(s==='purchasing')return{step:1,label:'En camino a El Salvador'};
   if(s==='paused')return{step:2,label:'Pedido en pausa'};
   return{step:0,label:'Pedido confirmado'};
 }
@@ -956,7 +958,7 @@ async function syncTracking(o){
     await db.ref('tracking/'+o.trackingToken).set({
       number:o.number||'',client:o.client||'',product:o.product||'',quantity:num(o.quantity)||null,
       items:its.length?its:null,
-      step:st.step,stage:st.label,paused:o.status==='paused',
+      step:st.step,stage:st.label,paused:o.status==='paused',v:2,
       deliveryDate:o.deliveryDate||'',actualDeliveryDate:o.actualDeliveryDate||'',
       updatedAt:nowISO()
     });

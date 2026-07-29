@@ -51,6 +51,7 @@ body{min-height:100vh;font-family:'Outfit',sans-serif;background:radial-gradient
 .step-copy b{display:block;font-size:13px;color:#8a94ab;font-weight:600;padding-top:6px}
 .step.done .step-copy b,.step.current .step-copy b{color:var(--navy);font-weight:700}
 .step.current .step-copy span{display:block;font-size:10.5px;color:var(--gold);font-weight:700;margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.step-copy .note{display:block;font-size:10.5px;color:#8a94ab;font-weight:500;margin-top:2px;text-transform:none;letter-spacing:0}
 .delivery{margin-top:20px;background:#f5f7fb;border:1px solid var(--border);border-radius:14px;padding:15px;display:flex;align-items:center;gap:13px}
 .delivery-icon{width:40px;height:40px;min-width:40px;border-radius:11px;background:#fff;border:1px solid var(--border);display:grid;place-items:center;font-size:18px}
 .delivery small{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}
@@ -107,11 +108,15 @@ firebase.initializeApp({
 const db = firebase.database();
 const STEPS = [
   {label:'Pedido confirmado', icon:'✓'},
-  {label:'Diseño y arte', icon:'🎨'},
+  {label:'En camino a El Salvador', icon:'✈️', note:'Tiempo estimado: 5 días'},
+  {label:'Diseño y aprobación de arte', icon:'🎨'},
   {label:'En producción', icon:'⚙️'},
   {label:'Listo para entrega', icon:'📦'},
   {label:'Entregado', icon:'🏁'}
 ];
+const FINAL = STEPS.length - 1;
+// Enlaces creados antes del cambio de etapas (escala de 5 pasos)
+const REMAP_V1 = {0:0, 1:2, 2:3, 3:4, 4:5};
 const $ = id => document.getElementById(id);
 function dateLabel(v){
   if(!v) return 'Por confirmar';
@@ -148,13 +153,18 @@ else{
     $('tStage').textContent = t.stage || '';
     const chip=$('tChip');
     chip.classList.remove('done','paused');
-    if(t.step===4) chip.classList.add('done');
+    if((t.v===2?Number(t.step):REMAP_V1[Number(t.step)||0])===FINAL) chip.classList.add('done');
     if(t.paused) chip.classList.add('paused');
+    const step = (t.v === 2) ? Number(t.step)||0 : (REMAP_V1[Number(t.step)||0] ?? 0);
     $('tSteps').innerHTML = STEPS.map((s,i)=>{
-      const cls = i < t.step ? 'done' : i === t.step ? (t.step===4?'done current':'current') : '';
-      return `<div class="step ${cls}"><div class="step-icon">${i < t.step || t.step===4 && i===4 ? '✓' : s.icon}</div><div class="step-copy"><b>${s.label}</b>${i===t.step && t.step!==4 ? `<span>${t.paused?'En pausa':'Etapa actual'}</span>`:''}</div></div>`;
+      const done = i < step || step === FINAL;
+      const current = i === step;
+      const cls = done ? (current ? 'done current' : 'done') : (current ? 'current' : '');
+      const badge = current && step !== FINAL ? `<span>${t.paused?'En pausa':'Etapa actual'}</span>` : '';
+      const note = s.note && i >= step && step !== FINAL ? `<span class="note">${s.note}</span>` : '';
+      return `<div class="step ${cls}"><div class="step-icon">${done ? '✓' : s.icon}</div><div class="step-copy"><b>${s.label}</b>${badge}${note}</div></div>`;
     }).join('');
-    if(t.step===4){
+    if(step===FINAL){
       $('tDelLabel').textContent='Entregado el';
       $('tDelIcon').textContent='✅';
       $('tDelivery').textContent=dateLabel(t.actualDeliveryDate || t.deliveryDate);
